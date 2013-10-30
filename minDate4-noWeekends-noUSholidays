@@ -1,0 +1,83 @@
+<script>
+//holidays
+var natDays = [
+    [1, 1, 'New Year'], //2014
+    [1, 20, 'Martin Luther King'], //2014
+    [2, 17, 'Washingtons Birthday'], //2014       
+    [5, 26, 'Memorial Day'], //2014
+    [7, 4, 'Independence Day'], //2014
+    [9, 1, 'Labour Day'], //2014
+    [10, 14, 'Columbus Day'], //2013
+    [11, 11, 'Veterans Day'], //2013
+    [11, 28, 'Thanks Giving Day'], //2013 
+    [12, 25, 'Christmas'] //2013     
+    ];
+
+// dateMin is the minimum delivery date
+var dateMin = new Date();
+
+// test dateMin delivery date by selecting a static date like this
+// var dateMin = new Date("10/15/2013");
+
+dateMin.setDate(dateMin.getDate() + (dateMin.getHours() >= 14 ? 1 : 0));
+AddBusinessDays(dateMin, 4);
+
+function AddBusinessDays(curdate, weekDaysToAdd) {
+    while (weekDaysToAdd > 0) {
+        curdate.setDate(curdate.getDate() + 1);
+        //check if current day is business day
+        if (noWeekendsOrHolidays(curdate)[0]) {
+            weekDaysToAdd--;
+        }
+    }
+}
+
+function noWeekendsOrHolidays(date) {
+    var noWeekend = $.datepicker.noWeekends(date);
+    if (noWeekend[0]) {
+        return nationalDays(date);
+    } else {
+        return noWeekend;
+    }
+}
+
+function nationalDays(date) {
+    for (i = 0; i < natDays.length; i++) {
+        if (date.getMonth() == natDays[i][0] - 1 && date.getDate() == natDays[i][1]) {
+            return [false, natDays[i][2] + '_day'];
+        }
+    }
+    return [true, ''];
+}
+
+function setDeliveryDate(datestring) {
+    var deliverdate = new Date(datestring);
+    var day = deliverdate.getDate();
+    var month = deliverdate.getMonth() + 1; // January starts at zero
+    var year = deliverdate.getFullYear();
+
+    $("#delivery-date").text(month + "/" + day + "/" + year);
+ 
+}
+
+setDeliveryDate(dateMin);
+
+
+// use datepicker to choose a different delivery date
+$('#datepicker').datepicker({
+    inline: true,
+    beforeShowDay: noWeekendsOrHolidays,
+    showOn: "both",
+    firstDay: 0,
+    dateformat: "dd/mm/yy",
+    changeFirstDay: false,
+    showButtonPanel: true,
+    minDate: dateMin,
+
+    onSelect: function (datestring) {
+        setDeliveryDate(datestring);
+    }
+
+});
+
+</script>
